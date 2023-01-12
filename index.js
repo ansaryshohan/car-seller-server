@@ -13,29 +13,49 @@ app.use(express.json())
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.evsael1.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-const run=()=>{
+function run(){
   const userDataBase= client.db('carSellerDB').collection('users')
+  const productsDataBase= client.db('carSellerDB').collection('products')
 
 try{
+  app.get('/user/:email',async(req,res)=>{
+    const email= req.params.email;
+    const query= {email:email};
+    const result= await userDataBase.findOne(query)
+    res.send({message:true, data:result})
+  })
 
-  app.put('/user/:email',async(req,res)=>{
+ app.put('/user/:email',async(req,res)=>{
+  // console.log('form user id email')
     const email=req.params.email;
     const query= {email:email};
     const user= req.body;
     const options= {upsert: true};
     const updateDoc= { $set:user}
     const result= await userDataBase.updateOne(query, updateDoc, options)
+    console.log(result)
     
     const jwtToken= jwt.sign(user,process.env.JWT_KEY,{expiresIn:"1d"})
     res.send({message:true, data:result , jwtToken})
 })
+
+app.get('/products',async(req,res)=>{
+  const microBusQuery= {category: "Micro Bus"};
+  const luxuryCarQuery= {category: "Luxury car"};
+  const electricCarQuery= {category: "Electric car"};
+
+  const microBus=  await productsDataBase.find(microBusQuery).toArray()
+  const luxuryCar=  await productsDataBase.find(luxuryCarQuery).toArray()
+  const electricCar=  await productsDataBase.find(electricCarQuery).toArray()
+  res.send({message:true,data: {microBus,luxuryCar,electricCar}})
+})
+
 }
 catch(error){
   console.log(error)
 }
-
 }
-run() .catch(error=>console.log(error))
+run();
 
 app.get('/',(req,res)=>{
   res.send({message:true, data: "server is running"})
