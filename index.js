@@ -70,6 +70,13 @@ app.post('/addedProduct',async(req,res)=>{
   const result= await addedProductDataBase.insertOne(productData);
   res.send({message:true, data:result})
 })
+app.get('/addedProduct/:email',async(req,res)=>{
+  const email= req.params.email;
+  const query={sellerEmail: email}
+  console.log(email,query)
+  const result= await addedProductDataBase.find(query).toArray();
+  res.send({message:true, data:result})
+})
 
 }
 catch(error){
