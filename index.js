@@ -13,6 +13,25 @@ app.use(express.json())
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.evsael1.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+// middleware 
+function verifyJWT(req,res,next){
+  const tokenHeader= req.headers.authorization;
+  if(!tokenHeader){
+    return res.status(401).send({message:"Unathorized access"})
+  }
+  const token= tokenHeader.split(" ")[1];
+  
+  jwt.verify(token,process.env.JWT_KEY, function(err,decoded){
+    if (err){
+      return res.status(403).send({message:"Forbiden access"})
+    }
+    req.decoded=decododed;
+    // console.log(decoded)
+    next()
+  })
+}
+
+
 function run(){
   const userDataBase= client.db('carSellerDB').collection('users')
   const productsDataBase= client.db('carSellerDB').collection('products')
@@ -76,6 +95,18 @@ app.get('/addedProduct/:email',async(req,res)=>{
   console.log(email,query)
   const result= await addedProductDataBase.find(query).toArray();
   res.send({message:true, data:result})
+})
+
+app.get('/sellers',verifyJWT,async(req,res)=>{
+  const query={role :"Seller"}
+  const sellers= await userDataBase.find(query).toArray()
+  res.send({message:true, data:sellers})
+})
+
+app.get('/buyers',verifyJWT,async(req,res)=>{
+  const query={role :"Buyer"}
+  const buyer= await userDataBase.find(query).toArray()
+  res.send({message:true, data:buyer})
 })
 
 }
