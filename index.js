@@ -57,6 +57,13 @@ app.post('/booking', async(req,res)=>{
   res.send({message:true, data:result})
 })
 
+app.get('/bookings/:email', async(req,res)=>{
+  const  email = req.params.email;
+  const query= {email:email};
+  const bookings= await bookingDataBase.find(query).toArray();
+  res.send({message:true, data:bookings})
+})
+
 }
 catch(error){
   console.log(error)
