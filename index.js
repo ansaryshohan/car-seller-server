@@ -17,6 +17,7 @@ function run(){
   const userDataBase= client.db('carSellerDB').collection('users')
   const productsDataBase= client.db('carSellerDB').collection('products')
   const bookingDataBase= client.db('carSellerDB').collection('bookings')
+  const addedProductDataBase= client.db('carSellerDB').collection('addedProducts')
 
 try{
   app.get('/user/:email',async(req,res)=>{
@@ -62,6 +63,12 @@ app.get('/bookings/:email', async(req,res)=>{
   const query= {email:email};
   const bookings= await bookingDataBase.find(query).toArray();
   res.send({message:true, data:bookings})
+})
+
+app.post('/addedProduct',async(req,res)=>{
+  const productData= req.body;
+  const result= await addedProductDataBase.insertOne(productData);
+  res.send({message:true, data:result})
 })
 
 }
