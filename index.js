@@ -16,6 +16,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 function run(){
   const userDataBase= client.db('carSellerDB').collection('users')
   const productsDataBase= client.db('carSellerDB').collection('products')
+  const bookingDataBase= client.db('carSellerDB').collection('bookings')
 
 try{
   app.get('/user/:email',async(req,res)=>{
@@ -47,7 +48,13 @@ app.get('/products',async(req,res)=>{
   const microBus=  await productsDataBase.find(microBusQuery).toArray()
   const luxuryCar=  await productsDataBase.find(luxuryCarQuery).toArray()
   const electricCar=  await productsDataBase.find(electricCarQuery).toArray()
-  res.send({message:true,data: {microBus,luxuryCar,electricCar}})
+  res.send({message:true, data: {microBus,luxuryCar,electricCar}})
+})
+
+app.post('/booking', async(req,res)=>{
+  const booking=req.body;
+  const result= await bookingDataBase.insertOne(booking);
+  res.send({message:true, data:result})
 })
 
 }
