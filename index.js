@@ -134,8 +134,11 @@ function run() {
     app.delete('/addedProduct/:id', verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result= await addedProductDataBase.deleteOne(query);
-      res.send({message:"product deleted",data:result})
+      const productName = req.query.productName;
+      const productQuery = { product_name: productName };
+      const result = await addedProductDataBase.deleteOne(query);
+      const deleteFromAllProduct= await productsDataBase.deleteOne(productQuery);
+      res.send({ message: "product deleted", data: result })
     })
 
     // allUsers data for admin dashboard
