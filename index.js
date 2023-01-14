@@ -71,12 +71,12 @@ function run() {
       const jwtToken = jwt.sign(user, process.env.JWT_KEY, { expiresIn: "1d" })
 
       // checking condition when login
-      if (userFromDB.email !== user.email && userFromDB.role !== user.role && userFromDB.userName !== user.userName) {
+      if (userFromDB?.email !== user.email || userFromDB?.role !== user.role || userFromDB?.userName !== user.userName) {
         const result = await userDataBase.updateOne(query, updateDoc, options)
-        res.send({ message: true, data: result, jwtToken })
+        res.send({ message: true, data: {result, jwtToken} })
       }
 
-      res.send({ message: true, data: {jwtToken} })
+      res.send({ message: true, data: jwtToken })
 
     })
 
