@@ -61,23 +61,18 @@ function run() {
     // creating user and jwt token 
     app.put('/user/:email', async (req, res) => {
       const email = req.params.email;
-      const query = { email: email };
-      const userFromDB = await userDataBase.findOne(query);
+      const query = { email: email }
       const user = req.body;
       const options = { upsert: true };
       const updateDoc = { $set: user };
 
-      // jwt token generation
-      const jwtToken = jwt.sign(user, process.env.JWT_KEY, { expiresIn: "1d" })
-
-      // checking condition when login
-      if (userFromDB?.email !== user.email || userFromDB?.role !== user.role || userFromDB?.userName !== user.userName) {
-        const result = await userDataBase.updateOne(query, updateDoc, options)
-        res.send({ message: true, data: {result, jwtToken} })
-      }
-
-      res.send({ message: true, data: jwtToken })
-
+      // creating user when signup
+        const result = await userDataBase.updateOne(query, updateDoc, options);
+        
+        // jwt token generation
+        const jwtToken = jwt.sign(user, process.env.JWT_KEY, { expiresIn: "1d" });
+        
+        res.send({ message: true, data: {result, jwtToken} });
     })
 
     // getting individual data of cars for products route
