@@ -62,14 +62,22 @@ function run() {
     app.put('/user/:email', async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
+      const userFromDB = await userDataBase.findOne(query);
       const user = req.body;
       const options = { upsert: true };
-      const updateDoc = { $set: user }
-      const result = await userDataBase.updateOne(query, updateDoc, options)
-      console.log(result)
+      const updateDoc = { $set: user };
 
+      // jwt token generation
       const jwtToken = jwt.sign(user, process.env.JWT_KEY, { expiresIn: "1d" })
-      res.send({ message: true, data: result, jwtToken })
+
+      // checking condition when login
+      if (userFromDB.email !== user.email && userFromDB.role !== user.role && userFromDB.userName !== user.userName) {
+        const result = await userDataBase.updateOne(query, updateDoc, options)
+        res.send({ message: true, data: result, jwtToken })
+      }
+
+      res.send({ message: true, data: jwtToken })
+
     })
 
     // getting individual data of cars for products route
@@ -82,7 +90,7 @@ function run() {
       const luxuryCar = await productsDataBase.find(luxuryCarQuery).toArray()
       const threeCar = await productsDataBase.find(luxuryCarQuery).limit(3).toArray()
       const electricCar = await productsDataBase.find(electricCarQuery).toArray()
-      res.send({ message: true, data: { microBus, luxuryCar, electricCar,threeCar } })
+      res.send({ message: true, data: { microBus, luxuryCar, electricCar, threeCar } })
     })
 
     // product booking data by buyer is sending to the database
@@ -104,21 +112,20 @@ function run() {
     app.post('/addedProduct', async (req, res) => {
       const productData = req.body;
       const result = await addedProductDataBase.insertOne(productData);
-      const addingToAllProductDB= await productsDataBase.insertOne(productData);
+      const addingToAllProductDB = await productsDataBase.insertOne(productData);
       res.send({ message: true, data: result })
     })
 
     // product added data for seller dashboard
     app.get('/addedProduct/:email', async (req, res) => {
       const email = req.params.email;
-      const query = { sellerEmail: email }
-      console.log(email, query)
+      const query = { sellerEmail: email };
       const result = await addedProductDataBase.find(query).toArray();
       res.send({ message: true, data: result })
     })
 
     // allUsers data for admin dashboard
-    app.get('/allusers', verifyJWT,verifyAdmin, async (req, res) => {
+    app.get('/allusers', verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.query.email;
       const role = req.query.role;
       if (req.decoded.email !== email) {
