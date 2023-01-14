@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config();
 const jwt = require('jsonwebtoken')
@@ -67,12 +67,12 @@ function run() {
       const updateDoc = { $set: user };
 
       // creating user when signup
-        const result = await userDataBase.updateOne(query, updateDoc, options);
-        
-        // jwt token generation
-        const jwtToken = jwt.sign(user, process.env.JWT_KEY, { expiresIn: "1d" });
-        
-        res.send({ message: true, data: {result, jwtToken} });
+      const result = await userDataBase.updateOne(query, updateDoc, options);
+
+      // jwt token generation
+      const jwtToken = jwt.sign(user, process.env.JWT_KEY, { expiresIn: "1d" });
+
+      res.send({ message: true, data: { result, jwtToken } });
     })
 
     // getting individual data of cars for products route
@@ -101,6 +101,20 @@ function run() {
       const query = { email: email };
       const bookings = await bookingDataBase.find(query).toArray();
       res.send({ message: true, data: bookings })
+    })
+    
+    // booking deleting by ids that was send in the query
+    app.delete("/bookings/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const decoded = req.decoded;
+      const id = req.query.id;
+
+      if (email === decoded.email) {
+        const query = { _id: ObjectId(id) };
+        const result = await bookingDataBase.deleteOne(query);
+        res.send({ message: "booking deleted", data: result })
+      }
+      res.status(401).send({ message: "failed", data: "Unauthorized access" })
     })
 
     // product adding data by seller is sending to the database
