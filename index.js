@@ -80,8 +80,9 @@ function run() {
 
       const microBus = await productsDataBase.find(microBusQuery).toArray()
       const luxuryCar = await productsDataBase.find(luxuryCarQuery).toArray()
+      const threeCar = await productsDataBase.find(luxuryCarQuery).limit(3).toArray()
       const electricCar = await productsDataBase.find(electricCarQuery).toArray()
-      res.send({ message: true, data: { microBus, luxuryCar, electricCar } })
+      res.send({ message: true, data: { microBus, luxuryCar, electricCar,threeCar } })
     })
 
     // product booking data by buyer is sending to the database
@@ -103,6 +104,7 @@ function run() {
     app.post('/addedProduct', async (req, res) => {
       const productData = req.body;
       const result = await addedProductDataBase.insertOne(productData);
+      const addingToAllProductDB= await productsDataBase.insertOne(productData);
       res.send({ message: true, data: result })
     })
 
