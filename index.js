@@ -102,19 +102,16 @@ function run() {
       const bookings = await bookingDataBase.find(query).toArray();
       res.send({ message: true, data: bookings })
     })
-    
-    // booking deleting by ids that was send in the query
-    app.delete("/bookings/:email", verifyJWT, async (req, res) => {
-      const email = req.params.email;
-      const decoded = req.decoded;
-      const id = req.query.id;
 
-      if (email === decoded.email) {
-        const query = { _id: ObjectId(id) };
-        const result = await bookingDataBase.deleteOne(query);
-        res.send({ message: "booking deleted", data: result })
-      }
-      res.status(401).send({ message: "failed", data: "Unauthorized access" })
+    // booking deleting by ids that was send in the query
+    app.delete('/bookings/:id', verifyJWT, async (req, res) => {
+      console.log('from delete trying to condole');
+      const decoded = req.decoded;
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await bookingDataBase.deleteOne(query);
+      res.send({ message: "booking deleted", data: result })
+
     })
 
     // product adding data by seller is sending to the database
@@ -131,6 +128,14 @@ function run() {
       const query = { sellerEmail: email };
       const result = await addedProductDataBase.find(query).toArray();
       res.send({ message: true, data: result })
+    })
+
+    // product deleting by seller
+    app.delete('/addedProduct/:id', verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result= await addedProductDataBase.deleteOne(query);
+      res.send({message:"product deleted",data:result})
     })
 
     // allUsers data for admin dashboard
