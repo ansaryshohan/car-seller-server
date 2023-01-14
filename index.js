@@ -76,7 +76,7 @@ function run() {
         res.send({ message: true, data: result, jwtToken })
       }
 
-      res.send({ message: true, data: jwtToken })
+      res.send({ message: true, data: {jwtToken} })
 
     })
 
