@@ -167,11 +167,23 @@ function run() {
       res.send({ message: true, data: sellers })
     })
 
+    // updating the seller verification here
+    app.put('/sellers/:id',  async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      console.log(filter)
+      const updateDoc = { $set:{verification:"verified"} };
+      const options= {upsert:true};
+      const result= await userDataBase.updateOne(filter,updateDoc,options);
+      res.send({message:"seller is updated", data:result})
+    })
+
+    // deleting the seller here
     app.delete('/sellers/:id', verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result= await userDataBase.deleteOne(query);
-      res.send({message:"the seller is deleted", data:result})
+      const result = await userDataBase.deleteOne(query);
+      res.send({ message: "the seller is deleted", data: result })
     })
 
     // buyers data for admin dashboard
@@ -190,8 +202,8 @@ function run() {
     app.delete('/buyers/:id', verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result= await userDataBase.deleteOne(query);
-      res.send({message:"the Buyer is deleted", data:result})
+      const result = await userDataBase.deleteOne(query);
+      res.send({ message: "the Buyer is deleted", data: result })
     })
 
   }
