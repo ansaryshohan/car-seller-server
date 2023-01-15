@@ -154,14 +154,24 @@ function run() {
       res.send({ message: true, data: allUsers })
     })
 
+    // updating the user to admin role here
+    app.put('/allusers/:id',verifyJWT,verifyAdmin,  async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = { $set:{role:"Admin"} };
+      const options= {upsert:true};
+      const result= await userDataBase.updateOne(filter,updateDoc,options);
+      res.send({message:"user role is updated", data:result})
+    })
+
+
     // sellers data for admin dashboard
     app.get('/sellers', verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.query.email;
       const role = req.query.role;
       if (req.decoded.email !== email) {
         res.status(403).send('forbidden access')
-      }
-      // console.log(req.decoded.email,req.decoded.role, role,email)
+      };
       const query = { role: "Seller" }
       const sellers = await userDataBase.find(query).toArray()
       res.send({ message: true, data: sellers })
@@ -170,8 +180,7 @@ function run() {
     // updating the seller verification here
     app.put('/sellers/:id',  async (req, res) => {
       const id = req.params.id;
-      const filter = { _id: ObjectId(id) };
-      console.log(filter)
+      const filter = { _id: ObjectId(id) } ;
       const updateDoc = { $set:{verification:"verified"} };
       const options= {upsert:true};
       const result= await userDataBase.updateOne(filter,updateDoc,options);
@@ -192,13 +201,13 @@ function run() {
       const role = req.query.role;
       if (req.decoded.email !== email) {
         res.status(403).send('forbidden access')
-      }
-
+      };
       const query = { role: "Buyer" }
       const buyer = await userDataBase.find(query).toArray()
       res.send({ message: true, data: buyer })
     })
 
+    // deleting a buyer
     app.delete('/buyers/:id', verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
