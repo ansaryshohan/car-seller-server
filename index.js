@@ -137,7 +137,7 @@ function run() {
       const productName = req.query.productName;
       const productQuery = { product_name: productName };
       const result = await addedProductDataBase.deleteOne(query);
-      const deleteFromAllProduct= await productsDataBase.deleteOne(productQuery);
+      const deleteFromAllProduct = await productsDataBase.deleteOne(productQuery);
       res.send({ message: "product deleted", data: result })
     })
 
@@ -167,6 +167,13 @@ function run() {
       res.send({ message: true, data: sellers })
     })
 
+    app.delete('/sellers/:id', verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result= await userDataBase.deleteOne(query);
+      res.send({message:"the seller is deleted", data:result})
+    })
+
     // buyers data for admin dashboard
     app.get('/buyers', verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.query.email;
@@ -178,6 +185,13 @@ function run() {
       const query = { role: "Buyer" }
       const buyer = await userDataBase.find(query).toArray()
       res.send({ message: true, data: buyer })
+    })
+
+    app.delete('/buyers/:id', verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result= await userDataBase.deleteOne(query);
+      res.send({message:"the Buyer is deleted", data:result})
     })
 
   }
